@@ -19,12 +19,28 @@
 
     <!-- Home UI -->
     <div id="home-view" class="flex flex-col items-center justify-center min-h-screen p-6 transition-all duration-500">
-        <div class="max-w-2xl w-full space-y-8">
-            <div class="text-center space-y-2">
-                <h1 class="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                    HTML Viewer
-                </h1>
-                <p class="text-slate-400 text-lg">GitHub에 올린 HTML 발표 자료를 바로 확인하세요.</p>
+        <div class="max-w-2xl w-full space-y-10">
+            <div class="text-center space-y-6">
+                <!-- Logo CSS (Square Viewer Shape) -->
+                <div class="relative w-20 h-20 mx-auto group">
+                    <div class="absolute inset-0 bg-blue-500/20 blur-xl rounded-full group-hover:bg-blue-500/40 transition-all duration-500"></div>
+                    <div class="relative w-full h-full glass rounded-2xl flex items-center justify-center border-white/20 group-hover:scale-110 group-hover:border-blue-400/50 transition-all duration-500 shadow-2xl">
+                        <div class="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-blue-400 border-b-[12px] border-b-transparent ml-1 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]"></div>
+                        <!-- Decorative dots -->
+                        <div class="absolute top-2 left-2 flex gap-1">
+                            <div class="w-1.5 h-1.5 rounded-full bg-red-500/50"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-amber-500/50"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500/50"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h1 class="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                        HTML Viewer
+                    </h1>
+                    <p class="text-slate-400 text-lg">GitHub 발표 자료를 위한 심플한 프리젠테이션 뷰어</p>
+                </div>
             </div>
 
             <!-- Input Section -->
@@ -47,7 +63,7 @@
                     </h2>
                     <button onclick="clearHistory()" class="text-xs text-slate-500 hover:text-red-400 transition-colors">전체 삭제</button>
                 </div>
-                <div id="history-list" class="grid gap-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                <div id="history-list" class="grid gap-3 max-h-[400px] overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
                     <!-- History items will be injected here -->
                 </div>
             </div>
@@ -59,21 +75,26 @@
         </footer>
     </div>
 
-    <!-- Viewer UI (Hidden by default) -->
+    <!-- Viewer UI -->
     <div id="viewer-view" class="fixed inset-0 hidden bg-black flex flex-col">
-        <div class="absolute top-4 left-4 z-50 flex gap-2 opacity-0 hover:opacity-100 transition-opacity duration-300">
-            <button onclick="exitViewer()" class="glass bg-black/50 p-3 rounded-full hover:bg-white/10 transition-colors shadow-2xl">
-                <i data-lucide="arrow-left" class="w-6 h-6 text-white"></i>
+        <!-- Controls: Always slightly visible, fully visible on hover -->
+        <div class="absolute top-4 left-4 z-50 flex gap-2 opacity-10 transition-opacity duration-300 hover:opacity-100">
+            <button onclick="exitViewer()" title="홈으로" class="glass bg-black/50 p-3 rounded-full hover:bg-white/10 transition-colors shadow-2xl">
+                <i data-lucide="home" class="w-6 h-6 text-white"></i>
             </button>
-            <button onclick="refreshIframe()" class="glass bg-black/50 p-3 rounded-full hover:bg-white/10 transition-colors shadow-2xl">
+            <button onclick="refreshIframe()" title="새로고침" class="glass bg-black/50 p-3 rounded-full hover:bg-white/10 transition-colors shadow-2xl">
                 <i data-lucide="refresh-cw" class="w-6 h-6 text-white"></i>
             </button>
         </div>
         <iframe id="presentation-frame" class="w-full h-full border-none bg-white"></iframe>
     </div>
 
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-sm font-medium text-white opacity-0 pointer-events-none transition-all duration-300 z-[100]">
+        복사되었습니다!
+    </div>
+
     <script>
-        // Initialize Icons
         lucide.createIcons();
 
         const urlInput = document.getElementById('url-input');
@@ -81,11 +102,10 @@
         const homeView = document.getElementById('home-view');
         const viewerView = document.getElementById('viewer-view');
         const iframe = document.getElementById('presentation-frame');
+        const toast = document.getElementById('toast');
 
-        // GitHub URL Converter
         function convertUrl(url) {
             try {
-                // github.com/.../blob/branch/path 형식 매칭
                 const gitHubRegExp = /github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)/;
                 const match = url.match(gitHubRegExp);
                 if (match) {
@@ -93,22 +113,16 @@
                     return `https://raw.githack.com/${user}/${repo}/${branch}/${path}`;
                 }
                 return url;
-            } catch (e) {
-                return url;
-            }
+            } catch (e) { return url; }
         }
 
-        // Handle View
         function handleView(targetUrl) {
             const url = targetUrl || urlInput.value.trim();
             if (!url) return alert('URL을 입력해주세요.');
 
             const displayUrl = convertUrl(url);
-            
-            // Save to history
             saveToHistory(url);
             
-            // Open Viewer
             homeView.classList.add('opacity-0', 'scale-95');
             setTimeout(() => {
                 homeView.classList.add('hidden');
@@ -132,19 +146,39 @@
             setTimeout(() => iframe.src = currentSrc, 10);
         }
 
-        // History Management
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('URL이 복사되었습니다!');
+            });
+        }
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('opacity-100', '-translate-y-2');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', '-translate-y-2');
+            }, 2000);
+        }
+
         function saveToHistory(url) {
             let history = JSON.parse(localStorage.getItem('viewer_history') || '[]');
-            // Remove duplicate if exists
             history = history.filter(item => item.url !== url);
-            // Add to start
+            
+            // 파일 이름 추출 및 한글 디코딩 처리
+            let rawTitle = url.split('/').pop().split('?')[0] || url;
+            let decodedTitle = rawTitle;
+            try {
+                decodedTitle = decodeURIComponent(rawTitle);
+            } catch (e) {
+                // 디코딩 실패 시 원본 사용
+            }
+
             history.unshift({
                 url: url,
                 timestamp: new Date().getTime(),
-                title: url.split('/').pop() || url
+                title: decodedTitle
             });
-            // Keep last 10
-            history = history.slice(0, 10);
+            history = history.slice(0, 15);
             localStorage.setItem('viewer_history', JSON.stringify(history));
         }
 
@@ -156,14 +190,22 @@
             }
 
             historyList.innerHTML = history.map(item => `
-                <div class="glass p-4 rounded-xl flex items-center justify-between group hover:bg-white/5 transition-all cursor-pointer">
-                    <div class="flex-1 min-w-0 mr-4" onclick="handleView('${item.url}')">
-                        <h3 class="font-medium text-slate-200 truncate">${item.title}</h3>
-                        <p class="text-xs text-slate-500 truncate mt-1">${item.url}</p>
+                <div class="glass p-4 rounded-xl flex items-center justify-between group hover:bg-white/5 transition-all">
+                    <div class="flex-1 min-w-0 mr-4 cursor-pointer" onclick="handleView('${item.url}')">
+                        <h3 class="font-medium text-slate-200 break-all line-clamp-1 group-hover:text-blue-400 transition-colors">${item.title}</h3>
+                        <p class="text-xs text-slate-500 mt-1 break-all line-clamp-2">${item.url}</p>
                     </div>
-                    <button onclick="removeFromHistory('${item.url}')" class="p-2 text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <button onclick="copyUrl('${item.url}')" title="URL 복사" class="p-2 text-slate-500 hover:text-emerald-400 hover:bg-white/5 rounded-lg transition-all">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <a href="${item.url}" target="_blank" title="GitHub에서 열기" class="p-2 text-slate-500 hover:text-blue-400 hover:bg-white/5 rounded-lg transition-all">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                        <button onclick="removeFromHistory('${item.url}')" title="기록 삭제" class="p-2 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition-all">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -183,12 +225,17 @@
             }
         }
 
-        // Listen for Enter key
         urlInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleView();
         });
 
-        // Initial render
+        // ESC key to exit viewer
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !viewerView.classList.contains('hidden')) {
+                exitViewer();
+            }
+        });
+
         renderHistory();
     </script>
 </body>
