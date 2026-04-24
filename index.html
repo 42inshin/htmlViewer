@@ -68,20 +68,20 @@
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <h1 class="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                <div class="space-y-3">
+                    <h1 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent tracking-tight">
                         HTML & MD Viewer
                     </h1>
-                    <p class="text-slate-500 dark:text-slate-400 text-lg font-medium">GitHub 발표 자료와 문서를 즉시 확인하세요.</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg font-medium opacity-80">GitHub 발표 자료와 문서를 즉시 확인하세요.</p>
                 </div>
             </div>
 
             <!-- Input Section -->
-            <div class="glass p-2 rounded-2xl flex items-center gap-2 focus-within:ring-2 ring-blue-500/50 transition-all">
+            <div class="glass p-2 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-2 focus-within:ring-2 ring-blue-500/50 transition-all">
                 <input type="text" id="url-input"
                     placeholder="GitHub URL (HTML 또는 MD)"
-                    class="bg-transparent border-none w-full p-4 outline-none text-lg text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500">
-                <button onclick="handleView()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold transition-all flex items-center gap-2 whitespace-nowrap">
+                    class="bg-transparent border-none w-full p-4 outline-none text-base md:text-lg text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500">
+                <button onclick="handleView()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 sm:py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-lg shadow-blue-500/20 active:scale-[0.98]">
                     <i data-lucide="play" class="w-5 h-5"></i>
                     열기
                 </button>
@@ -103,9 +103,9 @@
     </div>
 
     <!-- Viewer UI -->
-    <div id="viewer-view" class="fixed inset-0 hidden flex flex-col transition-all duration-300">
+    <div id="viewer-view" class="fixed inset-0 hidden flex flex-col transition-all duration-300 bg-slate-50 dark:bg-[#0d1117]">
         <!-- Controls -->
-        <div class="absolute top-4 left-4 z-50 flex gap-2 opacity-10 transition-opacity duration-300 hover:opacity-100">
+        <div class="absolute top-4 left-4 z-50 flex gap-2 opacity-50 sm:opacity-10 transition-opacity duration-300 hover:opacity-100">
             <button onclick="exitViewer()" title="홈으로" class="glass bg-white/20 dark:bg-black/20 p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors shadow-2xl">
                 <i data-lucide="home" class="w-6 h-6"></i>
             </button>
@@ -117,7 +117,7 @@
             </button>
         </div>
 
-        <iframe id="presentation-frame" class="hidden w-full h-full border-none bg-white"></iframe>
+        <iframe id="presentation-frame" class="hidden w-full h-full border-none bg-transparent"></iframe>
 
         <div id="markdown-viewer" class="hidden w-full h-full overflow-y-auto custom-scrollbar">
             <div id="markdown-content" class="markdown-body"></div>
@@ -167,6 +167,7 @@
                 body.setAttribute('data-color-mode', 'dark');
                 body.setAttribute('data-dark-theme', 'dark');
                 mdViewer.style.backgroundColor = '#0d1117';
+                viewerView.style.backgroundColor = '#0d1117';
                 themeBtn.innerHTML = '<i data-lucide="sun" class="w-6 h-6 text-white"></i>';
             } else {
                 html.classList.add('light');
@@ -174,6 +175,7 @@
                 body.setAttribute('data-color-mode', 'light');
                 body.setAttribute('data-light-theme', 'light');
                 mdViewer.style.backgroundColor = '#ffffff';
+                viewerView.style.backgroundColor = '#ffffff';
                 themeBtn.innerHTML = '<i data-lucide="moon" class="w-6 h-6 text-slate-600"></i>';
             }
             lucide.createIcons();
@@ -335,25 +337,25 @@
             historyList.innerHTML = history.map(item => {
                 const isMd = item.url.toLowerCase().endsWith('.md');
                 return `
-                <div class="glass p-4 rounded-xl flex items-center justify-between group hover:bg-white/5 transition-all">
-                    <div class="flex-1 min-w-0 mr-4 cursor-pointer" onclick="handleView('${item.url}')">
+                <div class="glass p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group hover:bg-white/5 transition-all">
+                    <div class="flex-1 min-w-0 w-full cursor-pointer" onclick="handleView('${item.url}')">
                         <div class="flex items-center gap-2">
                             <i data-lucide="${isMd ? 'file-text' : 'layout'}" class="w-4 h-4 ${isMd ? 'text-emerald-500' : 'text-blue-500'}"></i>
-                            <h3 class="font-medium break-all line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${item.title}</h3>
+                            <h3 class="font-bold break-all line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${item.title}</h3>
                         </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 break-all line-clamp-2 pl-6">${item.url}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 break-all line-clamp-1 opacity-60 pl-6">${item.url}</p>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="copyShareLink('${item.url}')" title="공유 링크 복사" class="p-2 text-slate-400 hover:text-blue-500 rounded-lg transition-all">
+                    <div class="flex items-center gap-1 self-end sm:self-auto bg-black/5 dark:bg-white/5 p-1 rounded-lg">
+                        <button onclick="copyShareLink('${item.url}')" title="공유 링크 복사" class="p-2 text-slate-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
                             <i data-lucide="share-2" class="w-4 h-4"></i>
                         </button>
-                        <button onclick="copyRawUrl('${item.url}')" title="원본 URL 복사" class="p-2 text-slate-400 hover:text-emerald-500 rounded-lg transition-all">
+                        <button onclick="copyRawUrl('${item.url}')" title="원본 URL 복사" class="p-2 text-slate-500 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all">
                             <i data-lucide="copy" class="w-4 h-4"></i>
                         </button>
-                        <a href="${item.url}" target="_blank" title="GitHub에서 열기" class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-all">
+                        <a href="${item.url}" target="_blank" title="GitHub에서 열기" class="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white/10 rounded-lg transition-all">
                             <i data-lucide="external-link" class="w-4 h-4"></i>
                         </a>
-                        <button onclick="removeFromHistory('${item.url}')" title="기록 삭제" class="p-2 text-slate-400 hover:text-red-500 rounded-lg transition-all">
+                        <button onclick="removeFromHistory('${item.url}')" title="기록 삭제" class="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
