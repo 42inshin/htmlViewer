@@ -14,7 +14,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        
+
         .glass { backdrop-filter: blur(10px); }
         .dark .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); }
         .light .glass { background: rgba(0, 0, 0, 0.03); border: 1px solid rgba(0, 0, 0, 0.1); }
@@ -22,10 +22,10 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
-        
+
         #markdown-content { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
         .markdown-body { background: transparent !important; padding: 32px; min-height: 100%; }
-        
+
         .dark .markdown-body { color: #c9d1d9 !important; }
         .light .markdown-body { color: #1f2328 !important; }
 
@@ -78,7 +78,7 @@
 
             <!-- Input Section -->
             <div class="glass p-2 rounded-2xl flex items-center gap-2 focus-within:ring-2 ring-blue-500/50 transition-all">
-                <input type="text" id="url-input" 
+                <input type="text" id="url-input"
                     placeholder="GitHub URL (HTML 또는 MD)"
                     class="bg-transparent border-none w-full p-4 outline-none text-lg text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500">
                 <button onclick="handleView()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold transition-all flex items-center gap-2 whitespace-nowrap">
@@ -116,9 +116,9 @@
                 <i data-lucide="share-2" class="w-6 h-6"></i>
             </button>
         </div>
-        
+
         <iframe id="presentation-frame" class="hidden w-full h-full border-none bg-white"></iframe>
-        
+
         <div id="markdown-viewer" class="hidden w-full h-full overflow-y-auto custom-scrollbar">
             <div id="markdown-content" class="markdown-body"></div>
         </div>
@@ -201,10 +201,37 @@
 
         async function handleView(targetUrl) {
             const url = targetUrl || urlInput.value.trim();
-            if (!url) return alert('URL을 입력해주세요.');
+
+            // 1. Validation
+            if (!url) {
+                showToast('URL을 입력해주세요.');
+                return;
+            }
+            if (!url.startsWith('http')) {
+                showToast('유효한 웹 주소(http/https)를 입력해주세요.');
+                return;
+            }
+
+            // 2. File Type Check
+            const lowerUrl = url.toLowerCase().split('?')[0];
+            const isHtml = lowerUrl.endsWith('.html') || lowerUrl.endsWith('.htm');
+            const isMd = lowerUrl.endsWith('.md');
+
+            if (!isHtml && !isMd) {
+                showToast('지원하지 않는 파일입니다. (.html 또는 .md 파일 필요)');
+                // return;
+            }
+
+            // 3. Optimization Notice
+            if (!url.includes('github.com')) {
+                showToast('주의: GitHub 주소에 최적화된 서비스입니다.');
+                return;
+            }
+
+            currentUrl = url;
             currentUrl = url;
             saveToHistory(url);
-            
+
             homeView.classList.add('opacity-0', 'scale-95');
             setTimeout(async () => {
                 homeView.classList.add('hidden');
