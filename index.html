@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" class="dark">
+<html lang="ko" class="dark overflow-y-auto">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,7 +40,7 @@
         .dark .markdown-body pre code { background-color: transparent !important; padding: 0 !important; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-[#0d1117] text-slate-900 dark:text-slate-200 min-h-screen overflow-hidden">
+<body class="bg-slate-50 dark:bg-[#0d1117] text-slate-900 dark:text-slate-200 min-h-screen overflow-y-auto">
 
     <!-- Top Controls (Theme & GitHub) -->
     <div id="top-controls" class="fixed top-4 right-4 sm:top-6 sm:right-6 z-[60] flex items-center gap-2 sm:gap-3 transition-opacity duration-300">
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Home UI -->
-    <div id="home-view" class="flex flex-col items-center justify-start md:justify-center min-h-screen p-6 pt-20 md:pt-6 transition-all duration-500">
+    <div id="home-view" class="flex flex-col items-center justify-start md:justify-center min-h-screen p-6 pt-20 pb-24 md:pt-6 transition-all duration-500">
         <div class="max-w-2xl w-full space-y-10">
             <div class="text-center space-y-6">
                 <!-- Logo -->
@@ -103,7 +103,7 @@
                     </h2>
                     <button onclick="clearHistory()" id="clear-btn" class="text-xs text-slate-400 hover:text-red-500 transition-colors" data-ko="전체 삭제" data-en="Clear All">전체 삭제</button>
                 </div>
-                <div id="history-list" class="grid gap-3 max-h-[350px] overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
+                <div id="history-list" class="grid gap-3 md:max-h-[500px] md:overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
                 </div>
             </div>
         </div>
@@ -245,6 +245,7 @@
             setTimeout(async () => {
                 homeView.classList.add('hidden');
                 viewerView.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden'); // Prevent background scroll
                 window.focus();
 
                 // Hide GitHub & Lang button in all viewer modes
@@ -302,6 +303,7 @@
             document.getElementById('lang-btn').classList.remove('hidden');
 
             viewerView.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden'); // Re-enable scroll
             homeView.classList.remove('hidden');
             setTimeout(() => homeView.classList.remove('opacity-0', 'scale-95'), 50);
             iframe.src = '';
