@@ -1,10 +1,8 @@
-# 📽️ HTML & Markdown Viewer
-
 <div align="center">
   <br />
   <img src="assets/logo.svg" width="100" alt="HTML Viewer Logo" />
 
-  <h1>HTML & MD Viewer</h1>
+  <h1>HTML & Markdown Viewer</h1>
   <p>GitHub의 HTML 발표 자료와 Markdown 문서를 주소 입력만으로 즉시 확인합니다.</p>
 
   <br />
