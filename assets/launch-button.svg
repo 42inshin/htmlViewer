@@ -1,5 +1,5 @@
 <svg width="240" height="52" viewBox="0 0 240 52" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="240" height="52" rx="26" fill="#1E293B"/>
   <rect x="0.5" y="0.5" width="239" height="51" rx="25.5" stroke="white" stroke-opacity="0.1"/>
-  <text x="120" y="27" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="16" font-weight="600" letter-spacing="-0.02em">Launch Viewer</text>
+  <text x="120" y="27" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="16" font-weight="600" letter-spacing="-0.02em">뷰어 시작하기</text>
 </svg>

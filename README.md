@@ -34,5 +34,5 @@
    - **테마 전환**: 우측 상단 해/달 아이콘 (Markdown 전용)
 
 ---
-**Tech Stack**: Tailwind CSS, Marked.js, GitHub Markdown CSS
+**Tech Stack**: Tailwind CSS, Marked.js, GitHub Markdown CSS<br>
 **Powered by**: [Raw.Githack](https://raw.githack.com/)
