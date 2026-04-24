@@ -1,23 +1,8 @@
 # 📽️ HTML Slide Viewer
 
 <div align="center">
-  <!-- README용 SVG 로고 -->
-  <svg width="120" height="90" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="10" y="10" width="100" height="70" rx="15" fill="#1E293B" stroke="#334155" stroke-width="2"/>
-    <rect x="10" y="10" width="100" height="70" rx="15" fill="url(#paint0_linear)" fill-opacity="0.2"/>
-    <path d="M52 35L72 45L52 55V35Z" fill="#60A5FA">
-      <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite" />
-    </path>
-    <circle cx="22" cy="22" r="3" fill="#EF4444" fill-opacity="0.6"/>
-    <circle cx="32" cy="22" r="3" fill="#F59E0B" fill-opacity="0.6"/>
-    <circle cx="42" cy="22" r="3" fill="#10B981" fill-opacity="0.6"/>
-    <defs>
-      <linearGradient id="paint0_linear" x1="10" y1="10" x2="110" y2="80" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#60A5FA"/>
-        <stop offset="1" stop-color="#34D399"/>
-      </linearGradient>
-    </defs>
-  </svg>
+  <br />
+  <img src="assets/logo.svg" width="120" alt="HTML Viewer Logo" />
 
   <h1 align="center">HTML Viewer</h1>
   <p align="center">GitHub 리포지토리에 업로드된 HTML 발표 자료를 URL 입력만으로 즉시 렌더링하여 보여주는 웹 애플리케이션입니다.</p>
@@ -27,7 +12,6 @@
     <img src="https://img.shields.io/badge/Launch%20Viewer-blue?style=for-the-badge&logo=github&logoColor=white" height="40" />
   </a>
   <br />
-  <h3>👉 [https://42inshin.github.io/htmlViewer/](https://42inshin.github.io/htmlViewer/)</h3>
   <p>링크를 클릭하면 즉시 뷰어를 사용할 수 있습니다.</p>
   <br />
 </div>
