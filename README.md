@@ -9,7 +9,7 @@
 
   <br />
   <a href="https://42inshin.github.io/htmlViewer/">
-    <img src="https://img.shields.io/badge/Launch%20Viewer-blue?style=for-the-badge&logo=github&logoColor=white" height="40" />
+    <img src="https://img.shields.io/badge/Launch%20Viewer-blue?style=for-the-badge&logo=github&logoColor=white" height="60" />
   </a>
   <br />
   <p>링크를 클릭하면 즉시 뷰어를 사용할 수 있습니다.</p>
