@@ -128,6 +128,10 @@
                 homeView.classList.add('hidden');
                 viewerView.classList.remove('hidden');
                 iframe.src = displayUrl;
+                
+                // 뷰어 진입 후 부모 창에 포커스 강제 (ESC 키 작동을 위해)
+                window.focus();
+                
                 setTimeout(() => viewerView.classList.add('opacity-100'), 50);
             }, 300);
         }
