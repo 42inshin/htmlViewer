@@ -219,12 +219,12 @@
 
             if (!isHtml && !isMd) {
                 showToast('지원하지 않는 파일입니다. (.html 또는 .md 파일 필요)');
-                // return;
+                return;
             }
 
             // 3. Optimization Notice
             if (!url.includes('github.com')) {
-                showToast('주의: GitHub 주소에 최적화된 서비스입니다.');
+                showToast('GitHub 주소만 지원합니다.');
                 return;
             }
 
