@@ -1,32 +1,62 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Slide Viewer</title>
+    <title>HTML & MD Viewer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        .glass { backdrop-filter: blur(10px); }
+        .dark .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .light .glass { background: rgba(0, 0, 0, 0.03); border: 1px solid rgba(0, 0, 0, 0.1); }
+
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        
+        #markdown-content { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .markdown-body { background: transparent !important; padding: 32px; min-height: 100%; }
+        
+        /* [CRITICAL] Force Text Visibility for MD Content */
+        .dark .markdown-body { color: #c9d1d9 !important; }
+        .light .markdown-body { color: #1f2328 !important; }
+
+        /* Table & Blockquote Visibility in Dark Mode */
+        .dark .markdown-body table tr { background-color: #0d1117 !important; border-top: 1px solid #30363d !important; }
+        .dark .markdown-body table tr:nth-child(2n) { background-color: #161b22 !important; }
+        .dark .markdown-body table th, .dark .markdown-body table td { border: 1px solid #30363d !important; color: #c9d1d9 !important; }
+        .dark .markdown-body blockquote { color: #8b949e !important; border-left: .25em solid #30363d !important; }
+        .dark .markdown-body h1, .dark .markdown-body h2, .dark .markdown-body h3, .dark .markdown-body h4, .dark .markdown-body h5, .dark .markdown-body h6 { color: #f0f6fc !important; border-bottom-color: #30363d !important; }
+        .dark .markdown-body a { color: #58a6ff !important; }
+        .dark .markdown-body code { background-color: rgba(110,118,129,0.4) !important; color: #f0f6fc !important; }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-200 min-h-screen overflow-hidden">
+<body class="bg-slate-50 dark:bg-[#0d1117] text-slate-900 dark:text-slate-200 min-h-screen overflow-hidden">
+
+    <!-- Theme Toggle (Only for Main and MD) -->
+    <div id="theme-toggle-container" class="fixed top-6 right-6 z-[60] transition-opacity duration-300">
+        <button onclick="toggleTheme()" id="theme-btn" class="glass p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all shadow-xl active:scale-95">
+        </button>
+    </div>
 
     <!-- Home UI -->
     <div id="home-view" class="flex flex-col items-center justify-center min-h-screen p-6 transition-all duration-500">
         <div class="max-w-2xl w-full space-y-10">
             <div class="text-center space-y-6">
-                <!-- Logo CSS (Square Viewer Shape) -->
+                <!-- Logo -->
                 <div class="relative w-20 h-20 mx-auto group">
                     <div class="absolute inset-0 bg-blue-500/20 blur-xl rounded-full group-hover:bg-blue-500/40 transition-all duration-500"></div>
                     <div class="relative w-full h-full glass rounded-2xl flex items-center justify-center border-white/20 group-hover:scale-110 group-hover:border-blue-400/50 transition-all duration-500 shadow-2xl">
                         <div class="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-blue-400 border-b-[12px] border-b-transparent ml-1 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]"></div>
-                        <!-- Decorative dots -->
                         <div class="absolute top-2 left-2 flex gap-1">
                             <div class="w-1.5 h-1.5 rounded-full bg-red-500/50"></div>
                             <div class="w-1.5 h-1.5 rounded-full bg-amber-500/50"></div>
@@ -37,151 +67,210 @@
 
                 <div class="space-y-2">
                     <h1 class="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                        HTML Viewer
+                        HTML & MD Viewer
                     </h1>
-                    <p class="text-slate-400 text-lg">GitHub 발표 자료를 위한 심플한 프리젠테이션 뷰어</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-lg font-medium">GitHub 발표 자료와 문서를 즉시 확인하세요.</p>
                 </div>
             </div>
 
             <!-- Input Section -->
             <div class="glass p-2 rounded-2xl flex items-center gap-2 focus-within:ring-2 ring-blue-500/50 transition-all">
                 <input type="text" id="url-input" 
-                    placeholder="https://github.com/user/repo/blob/main/index.html"
-                    class="bg-transparent border-none w-full p-4 outline-none text-lg text-slate-100 placeholder:text-slate-500">
+                    placeholder="GitHub URL (HTML 또는 MD)"
+                    class="bg-transparent border-none w-full p-4 outline-none text-lg text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500">
                 <button onclick="handleView()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-semibold transition-all flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="play" class="w-5 h-5"></i>
-                    발표 시작
+                    열기
                 </button>
             </div>
 
             <!-- Recent History -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between px-2">
-                    <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
                         <i data-lucide="history" class="w-4 h-4"></i>
-                        최근 본 발표
+                        최근 본 항목
                     </h2>
-                    <button onclick="clearHistory()" class="text-xs text-slate-500 hover:text-red-400 transition-colors">전체 삭제</button>
+                    <button onclick="clearHistory()" class="text-xs text-slate-400 hover:text-red-500 transition-colors">전체 삭제</button>
                 </div>
-                <div id="history-list" class="grid gap-3 max-h-[400px] overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
-                    <!-- History items will be injected here -->
+                <div id="history-list" class="grid gap-3 max-h-[350px] overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
                 </div>
             </div>
         </div>
-        
-        <!-- Footer -->
-        <footer class="absolute bottom-8 text-slate-500 text-sm">
-            Powered by <span class="text-slate-400 font-medium">Raw.Githack</span>
-        </footer>
     </div>
 
     <!-- Viewer UI -->
-    <div id="viewer-view" class="fixed inset-0 hidden bg-black flex flex-col">
-        <!-- Controls: Always slightly visible, fully visible on hover -->
+    <div id="viewer-view" class="fixed inset-0 hidden flex flex-col transition-all duration-300">
         <div class="absolute top-4 left-4 z-50 flex gap-2 opacity-10 transition-opacity duration-300 hover:opacity-100">
-            <button onclick="exitViewer()" title="홈으로" class="glass bg-black/50 p-3 rounded-full hover:bg-white/10 transition-colors shadow-2xl">
-                <i data-lucide="home" class="w-6 h-6 text-white"></i>
+            <button onclick="exitViewer()" title="홈으로" class="glass bg-white/20 dark:bg-black/20 p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors shadow-2xl">
+                <i data-lucide="home" class="w-6 h-6"></i>
             </button>
-            <button onclick="refreshIframe()" title="새로고침" class="glass bg-black/50 p-3 rounded-full hover:bg-white/10 transition-colors shadow-2xl">
-                <i data-lucide="refresh-cw" class="w-6 h-6 text-white"></i>
+            <button onclick="refreshView()" title="새로고침" class="glass bg-white/20 dark:bg-black/20 p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors shadow-2xl">
+                <i data-lucide="refresh-cw" class="w-6 h-6"></i>
             </button>
         </div>
-        <iframe id="presentation-frame" class="w-full h-full border-none bg-white"></iframe>
+        
+        <iframe id="presentation-frame" class="hidden w-full h-full border-none bg-white"></iframe>
+        
+        <div id="markdown-viewer" class="hidden w-full h-full overflow-y-auto custom-scrollbar">
+            <div id="markdown-content" class="markdown-body"></div>
+        </div>
+
+        <div id="loading" class="hidden absolute inset-0 flex items-center justify-center bg-black/10 dark:bg-black/40 z-40">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-sm font-medium text-white opacity-0 pointer-events-none transition-all duration-300 z-[100]">
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-sm font-medium opacity-0 pointer-events-none transition-all duration-300 z-[100] bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xl">
         복사되었습니다!
     </div>
 
     <script>
-        lucide.createIcons();
-
+        const html = document.documentElement;
+        const body = document.body;
+        const themeBtn = document.getElementById('theme-btn');
+        const themeContainer = document.getElementById('theme-toggle-container');
         const urlInput = document.getElementById('url-input');
         const historyList = document.getElementById('history-list');
         const homeView = document.getElementById('home-view');
         const viewerView = document.getElementById('viewer-view');
         const iframe = document.getElementById('presentation-frame');
+        const mdViewer = document.getElementById('markdown-viewer');
+        const mdContent = document.getElementById('markdown-content');
+        const loading = document.getElementById('loading');
         const toast = document.getElementById('toast');
 
-        function convertUrl(url) {
-            try {
-                const gitHubRegExp = /github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)/;
-                const match = url.match(gitHubRegExp);
-                if (match) {
-                    const [_, user, repo, branch, path] = match;
-                    return `https://raw.githack.com/${user}/${repo}/${branch}/${path}`;
-                }
-                return url;
-            } catch (e) { return url; }
+        let currentUrl = '';
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
         }
 
-        function handleView(targetUrl) {
+        function toggleTheme() {
+            const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                body.setAttribute('data-color-mode', 'dark');
+                body.setAttribute('data-dark-theme', 'dark');
+                mdViewer.style.backgroundColor = '#0d1117';
+                themeBtn.innerHTML = '<i data-lucide="sun" class="w-6 h-6 text-white"></i>';
+            } else {
+                html.classList.add('light');
+                html.classList.remove('dark');
+                body.setAttribute('data-color-mode', 'light');
+                body.setAttribute('data-light-theme', 'light');
+                mdViewer.style.backgroundColor = '#ffffff';
+                themeBtn.innerHTML = '<i data-lucide="moon" class="w-6 h-6 text-slate-600"></i>';
+            }
+            lucide.createIcons();
+        }
+
+        function convertToRaw(url) {
+            const gitHubRegExp = /github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)/;
+            const match = url.match(gitHubRegExp);
+            if (match) {
+                const [_, user, repo, branch, path] = match;
+                return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${path}`;
+            }
+            return url;
+        }
+
+        function convertToGithack(url) {
+            const gitHubRegExp = /github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)/;
+            const match = url.match(gitHubRegExp);
+            if (match) {
+                const [_, user, repo, branch, path] = match;
+                return `https://raw.githack.com/${user}/${repo}/${branch}/${path}`;
+            }
+            return url;
+        }
+
+        async function handleView(targetUrl) {
             const url = targetUrl || urlInput.value.trim();
             if (!url) return alert('URL을 입력해주세요.');
-
-            const displayUrl = convertUrl(url);
+            currentUrl = url;
             saveToHistory(url);
             
             homeView.classList.add('opacity-0', 'scale-95');
-            setTimeout(() => {
+            setTimeout(async () => {
                 homeView.classList.add('hidden');
                 viewerView.classList.remove('hidden');
-                iframe.src = displayUrl;
-                
-                // 뷰어 진입 후 부모 창에 포커스 강제 (ESC 키 작동을 위해)
                 window.focus();
-                
+
+                if (url.toLowerCase().endsWith('.md')) {
+                    themeContainer.classList.remove('hidden');
+                    await renderMarkdown(url);
+                } else {
+                    themeContainer.classList.add('hidden');
+                    showHtml(url);
+                }
                 setTimeout(() => viewerView.classList.add('opacity-100'), 50);
             }, 300);
         }
 
+        function showHtml(url) {
+            mdViewer.classList.add('hidden');
+            iframe.classList.remove('hidden');
+            iframe.src = convertToGithack(url);
+        }
+
+        async function renderMarkdown(url) {
+            iframe.classList.add('hidden');
+            mdViewer.classList.remove('hidden');
+            mdContent.innerHTML = '';
+            loading.classList.remove('hidden');
+
+            try {
+                const rawUrl = convertToRaw(url);
+                const response = await fetch(rawUrl);
+                if (!response.ok) throw new Error('파일 로드 실패');
+                const text = await response.text();
+                mdContent.innerHTML = marked.parse(text);
+                mdViewer.scrollTop = 0;
+            } catch (e) {
+                mdContent.innerHTML = `<div class="text-red-400 p-8 text-center">에러: ${e.message}</div>`;
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
         function exitViewer() {
+            themeContainer.classList.remove('hidden');
             viewerView.classList.add('hidden');
             homeView.classList.remove('hidden');
             setTimeout(() => homeView.classList.remove('opacity-0', 'scale-95'), 50);
             iframe.src = '';
+            mdContent.innerHTML = '';
             renderHistory();
         }
 
-        function refreshIframe() {
-            const currentSrc = iframe.src;
-            iframe.src = '';
-            setTimeout(() => iframe.src = currentSrc, 10);
-        }
+        function refreshView() { handleView(currentUrl); }
 
         function copyUrl(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                showToast('URL이 복사되었습니다!');
-            });
+            navigator.clipboard.writeText(url).then(() => showToast('URL이 복사되었습니다!'));
         }
 
         function showToast(msg) {
             toast.textContent = msg;
             toast.classList.add('opacity-100', '-translate-y-2');
-            setTimeout(() => {
-                toast.classList.remove('opacity-100', '-translate-y-2');
-            }, 2000);
+            setTimeout(() => toast.classList.remove('opacity-100', '-translate-y-2'), 2000);
         }
 
         function saveToHistory(url) {
             let history = JSON.parse(localStorage.getItem('viewer_history') || '[]');
             history = history.filter(item => item.url !== url);
-            
-            // 파일 이름 추출 및 한글 디코딩 처리
             let rawTitle = url.split('/').pop().split('?')[0] || url;
             let decodedTitle = rawTitle;
-            try {
-                decodedTitle = decodeURIComponent(rawTitle);
-            } catch (e) {
-                // 디코딩 실패 시 원본 사용
-            }
+            try { decodedTitle = decodeURIComponent(rawTitle); } catch (e) {}
 
-            history.unshift({
-                url: url,
-                timestamp: new Date().getTime(),
-                title: decodedTitle
-            });
+            history.unshift({ url, timestamp: new Date().getTime(), title: decodedTitle });
             history = history.slice(0, 15);
             localStorage.setItem('viewer_history', JSON.stringify(history));
         }
@@ -193,25 +282,30 @@
                 return;
             }
 
-            historyList.innerHTML = history.map(item => `
-                <div class="glass p-4 rounded-xl flex items-center justify-between group hover:bg-white/5 transition-all">
+            historyList.innerHTML = history.map(item => {
+                const isMd = item.url.toLowerCase().endsWith('.md');
+                return `
+                <div class="glass p-4 rounded-xl flex items-center justify-between group hover:bg-black/5 dark:hover:bg-white/5 transition-all">
                     <div class="flex-1 min-w-0 mr-4 cursor-pointer" onclick="handleView('${item.url}')">
-                        <h3 class="font-medium text-slate-200 break-all line-clamp-1 group-hover:text-blue-400 transition-colors">${item.title}</h3>
-                        <p class="text-xs text-slate-500 mt-1 break-all line-clamp-2">${item.url}</p>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="${isMd ? 'file-text' : 'layout'}" class="w-4 h-4 ${isMd ? 'text-emerald-500' : 'text-blue-500'}"></i>
+                            <h3 class="font-medium break-all line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${item.title}</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 break-all line-clamp-2 pl-6">${item.url}</p>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button onclick="copyUrl('${item.url}')" title="URL 복사" class="p-2 text-slate-500 hover:text-emerald-400 hover:bg-white/5 rounded-lg transition-all">
+                        <button onclick="copyUrl('${item.url}')" title="URL 복사" class="p-2 text-slate-400 hover:text-emerald-500 rounded-lg transition-all">
                             <i data-lucide="copy" class="w-4 h-4"></i>
                         </button>
-                        <a href="${item.url}" target="_blank" title="GitHub에서 열기" class="p-2 text-slate-500 hover:text-blue-400 hover:bg-white/5 rounded-lg transition-all">
+                        <a href="${item.url}" target="_blank" title="GitHub에서 열기" class="p-2 text-slate-400 hover:text-blue-500 rounded-lg transition-all">
                             <i data-lucide="external-link" class="w-4 h-4"></i>
                         </a>
-                        <button onclick="removeFromHistory('${item.url}')" title="기록 삭제" class="p-2 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition-all">
+                        <button onclick="removeFromHistory('${item.url}')" title="기록 삭제" class="p-2 text-slate-400 hover:text-red-500 rounded-lg transition-all">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             lucide.createIcons();
         }
 
@@ -229,17 +323,12 @@
             }
         }
 
-        urlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleView();
-        });
-
-        // ESC key to exit viewer
+        urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleView(); });
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !viewerView.classList.contains('hidden')) {
-                exitViewer();
-            }
+            if (e.key === 'Escape' && !viewerView.classList.contains('hidden')) exitViewer();
         });
 
+        initTheme();
         renderHistory();
     </script>
 </body>
