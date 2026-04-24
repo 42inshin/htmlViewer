@@ -35,14 +35,19 @@
         .dark .markdown-body blockquote { color: #8b949e !important; border-left: .25em solid #30363d !important; }
         .dark .markdown-body h1, .dark .markdown-body h2, .dark .markdown-body h3, .dark .markdown-body h4, .dark .markdown-body h5, .dark .markdown-body h6 { color: #f0f6fc !important; border-bottom-color: #30363d !important; }
         .dark .markdown-body a { color: #58a6ff !important; }
-        .dark .markdown-body code { background-color: rgba(110,118,129,0.4) !important; color: #f0f6fc !important; }
+        .dark .markdown-body code { background-color: rgba(110,118,129,0.4) !important; color: #f0f6fc !important; padding: 0.2em 0.4em !important; border-radius: 6px !important; font-size: 85% !important; }
+        .dark .markdown-body pre { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 6px !important; padding: 16px !important; }
+        .dark .markdown-body pre code { background-color: transparent !important; padding: 0 !important; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-[#0d1117] text-slate-900 dark:text-slate-200 min-h-screen overflow-hidden">
 
-    <!-- Theme Toggle -->
-    <div id="theme-toggle-container" class="fixed top-6 right-6 z-[60] transition-opacity duration-300">
-        <button onclick="toggleTheme()" id="theme-btn" class="glass p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all shadow-xl active:scale-95">
+    <!-- Top Controls (Theme & GitHub) -->
+    <div id="top-controls" class="fixed top-6 right-6 z-[60] flex items-center gap-3 transition-opacity duration-300">
+        <a href="https://github.com/42inshin/htmlViewer" target="_blank" id="github-btn" class="glass p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all shadow-xl active:scale-95 group" title="View on GitHub">
+            <img src="assets/github.svg" class="w-6 h-6 opacity-60 dark:opacity-80 dark:invert group-hover:opacity-100 transition-all" alt="GitHub">
+        </a>
+        <button onclick="toggleTheme()" id="theme-btn" class="glass p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all shadow-xl active:scale-95" title="테마 변경">
         </button>
     </div>
 
@@ -131,7 +136,7 @@
         const html = document.documentElement;
         const body = document.body;
         const themeBtn = document.getElementById('theme-btn');
-        const themeContainer = document.getElementById('theme-toggle-container');
+        const topControls = document.getElementById('top-controls');
         const urlInput = document.getElementById('url-input');
         const historyList = document.getElementById('history-list');
         const homeView = document.getElementById('home-view');
@@ -206,11 +211,14 @@
                 viewerView.classList.remove('hidden');
                 window.focus();
 
+                // Hide GitHub button in all viewer modes
+                document.getElementById('github-btn').classList.add('hidden');
+
                 if (url.toLowerCase().endsWith('.md')) {
-                    themeContainer.classList.remove('hidden');
+                    topControls.classList.remove('hidden');
                     await renderMarkdown(url);
                 } else {
-                    themeContainer.classList.add('hidden');
+                    topControls.classList.add('hidden');
                     showHtml(url);
                 }
                 setTimeout(() => viewerView.classList.add('opacity-100'), 50);
@@ -240,11 +248,15 @@
                 mdContent.innerHTML = `<div class="text-red-400 p-8 text-center">에러: ${e.message}</div>`;
             } finally {
                 loading.classList.add('hidden');
+                lucide.createIcons(); // MD 내 아이콘 렌더링 대비
             }
         }
 
         function exitViewer() {
-            themeContainer.classList.remove('hidden');
+            // Restore buttons when returning to home
+            topControls.classList.remove('hidden');
+            document.getElementById('github-btn').classList.remove('hidden');
+
             viewerView.classList.add('hidden');
             homeView.classList.remove('hidden');
             setTimeout(() => homeView.classList.remove('opacity-0', 'scale-95'), 50);
@@ -296,7 +308,7 @@
             historyList.innerHTML = history.map(item => {
                 const isMd = item.url.toLowerCase().endsWith('.md');
                 return `
-                <div class="glass p-4 rounded-xl flex items-center justify-between group hover:bg-black/5 dark:hover:bg-white/5 transition-all">
+                <div class="glass p-4 rounded-xl flex items-center justify-between group hover:bg-white/5 transition-all">
                     <div class="flex-1 min-w-0 mr-4 cursor-pointer" onclick="handleView('${item.url}')">
                         <div class="flex items-center gap-2">
                             <i data-lucide="${isMd ? 'file-text' : 'layout'}" class="w-4 h-4 ${isMd ? 'text-emerald-500' : 'text-blue-500'}"></i>
@@ -352,6 +364,7 @@
                 urlInput.value = sharedUrl;
                 handleView(sharedUrl);
             }
+            lucide.createIcons(); // Final check for icons
         });
     </script>
 </body>
