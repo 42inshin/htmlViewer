@@ -1,4 +1,7 @@
 <div align="center">
+  <p align="right">
+    <b>한국어</b> | <a href="./README_EN.md">English</a>
+  </p>
   <br />
   <img src="assets/logo.svg" width="100" alt="HTML Viewer Logo" />
 
@@ -29,7 +32,8 @@
 2. 입력창에 주소 붙여넣고 **[열기]** 클릭
 3. 조작 안내:
    - **ESC**: 홈 화면으로 복귀
-   - **왼쪽 상단 구석**: 홈/새로고침 버튼 (마우스 오버 시 노출)
+   - **왼쪽 상단 구석**: 홈/새로고침/공유 버튼 (마우스 오버 시 노출)
+   - **언어 전환**: 우측 상단 KO/EN 버튼
    - **테마 전환**: 우측 상단 해/달 아이콘 (Markdown 전용)
 
 ---
